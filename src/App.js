@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { format, differenceInDays, parseISO } from 'date-fns';
+import './App.css';
 
 const categories = [
   "Living Room", "Kitchen", "Main Bathroom", "En Suite Bathroom", "Bedroom", "Overall", "Stuff"
