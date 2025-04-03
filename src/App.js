@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import './App.css';
 
@@ -39,12 +38,21 @@ export default function CleaningLogApp() {
     setNewItem("");
   };
 
+  // Updated getItemColor function
   const getItemColor = (lastCleaned) => {
-    if (!lastCleaned) return "bg-gray-200";
+    if (!lastCleaned) return "bg-gray-200"; // Default color if no date is selected
+    console.log("no lastCleaned date");
     const daysAgo = differenceInDays(new Date(), parseISO(lastCleaned));
-    if (daysAgo <= 7) return "bg-green-200";
-    if (daysAgo <= 14) return "bg-yellow-200";
-    return "bg-red-200";
+    
+    if (daysAgo <= 7) {
+      console.log("7 or less days ago");
+      return "bg-green"; // Color for the last week
+    }
+    if (daysAgo <= 14) {
+      console.log("14 or less days ago");
+      return "bg-yellow"; // Color for between 1 and 2 weeks
+    }
+    return "bg-red"; // Color for over 2 weeks
   };
 
   return (
@@ -73,7 +81,7 @@ export default function CleaningLogApp() {
         <div key={category} className="mb-4">
           <h2 className="text-xl font-semibold mb-2">{category}</h2>
           {items.filter(item => item.category === category).map(item => (
-            <div key={item.id} className={`flex gap-2 mb-2 items-center p-2 rounded ${getItemColor(item.lastCleaned)}` }>
+            <div key={item.id} className={`flex gap-2 mb-2 items-center p-2 rounded ${getItemColor(item.lastCleaned)}`}>
               <span className="w-40">{item.name}</span>
               <input
                 type="date"
