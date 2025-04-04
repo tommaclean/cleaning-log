@@ -1,21 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import './App.css';
+import { db } from './firebase';
+import { ref, onValue, remove, update, push, set } from "firebase/database";
 
 const categories = [
   "Living Room", "Kitchen", "Main Bathroom", "En Suite Bathroom", "Bedroom", "Overall", "Stuff"
 ];
 
 export default function CleaningLogApp() {
-  const [items, setItems] = useState([
-    { id: 1, name: "Vacuum Carpet", category: "Living Room", lastCleaned: null, previousCleaned: null },
-    { id: 2, name: "Wipe Counters", category: "Kitchen", lastCleaned: null, previousCleaned: null },
-  ]);
+  const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
+  useEffect(() => {
+    const itemsRef = ref(db, "items");
+
+    onValue(itemsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const fetchedItems = Object.keys(data).map(key => ({
+          id: key,
+          ...data[key],
+        }));
+        setItems(fetchedItems);
+      } else {
+        setItems([]);
+      }
+    });
+
+    return () => {
+      // No need to manually detach listeners in React 18+
+    };
+  }, []);
+
   const handleDateChange = (id, date) => {
-    setItems(items.map(item => item.id === id ? { ...item, previousCleaned: item.lastCleaned, lastCleaned: date } : item));
+    const updatedItems = items.map(item =>
+      item.id === id ? { ...item, previousCleaned: item.lastCleaned, lastCleaned: date } : item
+    );
+    setItems(updatedItems);
+
+    update(ref(db, "items/" + id), {
+      lastCleaned: date,
+      previousCleaned: updatedItems.find(item => item.id === id).previousCleaned
+    });
   };
 
   const handleToday = (id) => {
@@ -24,35 +52,46 @@ export default function CleaningLogApp() {
   };
 
   const handleUndo = (id) => {
-    setItems(items.map(item => item.id === id ? { ...item, lastCleaned: item.previousCleaned, previousCleaned: null } : item));
+    const updatedItems = items.map(item =>
+      item.id === id ? { ...item, lastCleaned: item.previousCleaned, previousCleaned: null } : item
+    );
+    setItems(updatedItems);
+
+    update(ref(db, "items/" + id), {
+      lastCleaned: updatedItems.find(item => item.id === id).previousCleaned,
+      previousCleaned: null
+    });
   };
 
   const handleDelete = (id) => {
     setItems(items.filter(item => item.id !== id));
+    remove(ref(db, "items/" + id));
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = async () => {
     if (newItem.trim() === "") return;
-    const newEntry = { id: Date.now(), name: newItem, category: selectedCategory, lastCleaned: null, previousCleaned: null };
-    setItems([...items, newEntry]);
+
+    const newItemData = {
+      name: newItem,
+      category: selectedCategory,
+      lastCleaned: null,
+      previousCleaned: null
+    };
+
+    const newItemRef = push(ref(db, "items"));
+    await set(newItemRef, newItemData);
+
+    setItems([...items, { id: newItemRef.key, ...newItemData }]);
     setNewItem("");
   };
 
-  // Updated getItemColor function
   const getItemColor = (lastCleaned) => {
-    if (!lastCleaned) return "bg-gray-200"; // Default color if no date is selected
-    console.log("no lastCleaned date");
+    if (!lastCleaned) return "bg-gray-200";
+
     const daysAgo = differenceInDays(new Date(), parseISO(lastCleaned));
-    
-    if (daysAgo <= 7) {
-      console.log("7 or less days ago");
-      return "bg-green"; // Color for the last week
-    }
-    if (daysAgo <= 14) {
-      console.log("14 or less days ago");
-      return "bg-yellow"; // Color for between 1 and 2 weeks
-    }
-    return "bg-red"; // Color for over 2 weeks
+    if (daysAgo <= 7) return "bg-[rgb(187,247,208)]"; // Green
+    if (daysAgo <= 14) return "bg-[rgb(254,240,138)]"; // Yellow
+    return "bg-[rgb(254,202,202)]"; // Red
   };
 
   return (
@@ -77,6 +116,7 @@ export default function CleaningLogApp() {
         </select>
         <button onClick={handleAddItem} className="bg-green-500 text-white px-2 py-1 rounded">Add</button>
       </div>
+
       {categories.map(category => (
         <div key={category} className="mb-4">
           <h2 className="text-xl font-semibold mb-2">{category}</h2>
