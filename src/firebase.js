@@ -6,17 +6,17 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const database = getDatabase(app);
 
 export function saveData(itemId, data) {
   console.log("firebase.js saveData", data);
-  return set(ref(db, "items/" + itemId), data);
+  return set(ref(database, "items/" + itemId), data);
 }
 
 export async function getData(itemId) {
-  const dbRef = ref(db);
+  const dbRef = ref(database);
   const snapshot = await get(child(dbRef, "items/" + itemId));
   return snapshot.exists() ? snapshot.val() : null;
 }
 
-export { db };
+export { database };
