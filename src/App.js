@@ -72,13 +72,13 @@ function App() {
 
   const getColorClass = (date) => {
     const daysSince = Math.floor((Date.now() - new Date(date)) / (1000 * 60 * 60 * 24));
-    if (daysSince < 4) return 'bg-green';
-    if (daysSince < 7) return 'bg-yellow';
+    if (daysSince < 7) return 'bg-green';
+    if (daysSince < 14) return 'bg-yellow';
     return 'bg-red';
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-8">
+    <div className="min-h-screen p-4 sm:p-8 overflow-x-hidden">
       <div className="w-full max-w-xl sm:max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Cleaning Log</h1>
 
@@ -127,7 +127,7 @@ function App() {
                       className="border p-1 rounded"
                     />
                   </div>
-                  <div className="flex gap-2 mt-2 sm:mt-0">
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     <button
                       onClick={() => handleToday(key)}
                       className="bg-blue-500 text-white px-2 py-1 rounded"
