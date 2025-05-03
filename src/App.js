@@ -144,7 +144,7 @@ function App() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div>
                       <strong>{item.name}</strong>
-                      <div className="text-sm text-gray-600">{getDaysSince(item.lastCleaned)} days</div>
+                      <div className="text-sm text-gray-600">{getDaysSince(item.lastCleaned)} days ago</div>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 items-center">
