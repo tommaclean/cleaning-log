@@ -164,13 +164,13 @@ function App() {
                       onClick={() => handleUndoChange(key)}
                       className="bg-gray-500 text-white px-2 py-1 rounded"
                     >
-                      Undo
+                      ↩
                     </button>
                     <button
                       onClick={() => handleDelete(key)}
                       className="bg-red-500 text-white px-2 py-1 rounded"
                     >
-                      Delete
+                      X
                     </button>
                   </div>
                 </div>
