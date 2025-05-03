@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { database } from './firebase';
 import {
@@ -19,9 +20,19 @@ const categories = [
   'Stuff',
 ];
 
+const frequencyMap = {
+  '1 week': 7,
+  '2 weeks': 14,
+  '3 weeks': 21,
+  '1 month': 30,
+  '2 months': 60,
+  '3 months': 90,
+};
+
 function App() {
   const [newItem, setNewItem] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [selectedFrequency, setSelectedFrequency] = useState('1 week');
   const [items, setItems] = useState({});
   const [undoStack, setUndoStack] = useState([]);
 
@@ -41,6 +52,7 @@ function App() {
       name: newItem,
       category: selectedCategory,
       lastCleaned: new Date().toISOString().split('T')[0],
+      frequency: selectedFrequency,
     };
     set(newItemRef, itemData);
     setUndoStack([...undoStack, { type: 'add', key: newItemRef.key }]);
@@ -70,16 +82,22 @@ function App() {
     }
   };
 
-  const getColorClass = (date) => {
-    const daysSince = Math.floor((Date.now() - new Date(date)) / (1000 * 60 * 60 * 24));
-    if (daysSince < 7) return 'bg-green';
-    if (daysSince < 14) return 'bg-yellow';
-    return 'bg-red';
+  const getColorClass = (lastCleaned, frequency) => {
+    const daysSince = Math.floor((Date.now() - new Date(lastCleaned)) / (1000 * 60 * 60 * 24));
+    const frequencyDays = frequencyMap[frequency] || 7;
+
+    if (daysSince < frequencyDays / 2) return 'border-green-400';
+    if (daysSince < frequencyDays) return 'border-yellow-400';
+    return 'border-red-400';
+  };
+
+  const getDaysSince = (lastCleaned) => {
+    return Math.floor((Date.now() - new Date(lastCleaned)) / (1000 * 60 * 60 * 24));
   };
 
   return (
     <div className="min-h-screen p-4 sm:p-8 overflow-x-hidden">
-      <div className="w-full max-w-xl sm:max-w-3xl mx-auto">
+      <div className="w-full max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Cleaning Log</h1>
 
         <div className="flex flex-col sm:flex-row gap-2 mb-4 items-start">
@@ -96,9 +114,16 @@ function App() {
             className="border p-2 rounded w-full sm:w-40"
           >
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <select
+            value={selectedFrequency}
+            onChange={(e) => setSelectedFrequency(e.target.value)}
+            className="border p-2 rounded w-full sm:w-40"
+          >
+            {Object.keys(frequencyMap).map((label) => (
+              <option key={label} value={label}>{label}</option>
             ))}
           </select>
           <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded">
@@ -107,27 +132,28 @@ function App() {
         </div>
 
         {categories.map((category) => (
-          <div key={category} className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">{category}</h2>
+          <div key={category} className="mb-6 p-4 border rounded-lg bg-white shadow-sm">
+            <h2 className="text-xl font-semibold mb-4">{category}</h2>
             {Object.entries(items)
               .filter(([_, item]) => item.category === category)
               .map(([key, item]) => (
                 <div
                   key={key}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-2 mb-2 rounded ${getColorClass(
-                    item.lastCleaned
-                  )}`}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 mb-2 border-l-4 rounded ${getColorClass(item.lastCleaned, item.frequency)} bg-gray-50`}
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <strong>{item.name}</strong>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div>
+                      <strong>{item.name}</strong>
+                      <div className="text-sm text-gray-600">{getDaysSince(item.lastCleaned)} days</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 items-center">
                     <input
                       type="date"
                       value={item.lastCleaned}
                       onChange={(e) => handleDateChange(key, e.target.value)}
                       className="border p-1 rounded"
                     />
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
                     <button
                       onClick={() => handleToday(key)}
                       className="bg-blue-500 text-white px-2 py-1 rounded"

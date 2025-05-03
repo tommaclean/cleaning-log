@@ -1,48 +1,56 @@
-/* Reset some default browser styles */
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Make sure the body takes up the full height of the screen */
+/* Full height for layout */
 html, body {
   height: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #1f2937;
 }
 
-/* Apply some spacing and ensure the body fills the viewport */
+/* Flex layout */
 body {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #f4f4f4;
   min-height: 100vh;
 }
 
-/* Link styling for the app */
+/* Anchor styling */
 a {
   text-decoration: none;
   color: inherit;
 }
 
-/* Global Typography */
+/* Typography consistency */
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
 }
 
-/* Add a smooth transition effect for elements */
+/* Smooth transitions */
 *, *::before, *::after {
   transition: all 0.3s ease;
 }
 
-/* Focused elements should have a visible outline */
+/* Focus outlines */
 :focus {
-  outline: 3px solid #4b6a9e; /* The same blue color */
+  outline: 3px solid #4b6a9e;
 }
 
-/* Container to center content */
+/* Container utility */
 .container {
   width: 100%;
   max-width: 1200px;
@@ -50,27 +58,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 20px;
 }
 
-/* Global Button Styles */
-button {
-  background-color: #4b6a9e;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #3b5b81;
-}
-
-button:focus {
-  outline: none;
-}
-
-/* Table Styles */
+/* Table defaults (optional, in case used elsewhere) */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -100,7 +88,7 @@ table tr:hover td {
   background-color: #e6f2ff;
 }
 
-/* Responsive Design for Smaller Screens */
+/* Responsive tweaks */
 @media (max-width: 768px) {
   .container {
     padding: 10px;
