@@ -1,119 +1,46 @@
-/* General styles */
+/* App.css */
 body {
-  font-family: 'Arial', sans-serif;
   margin: 0;
-  padding: 0;
-  transition: background-color 0.3s ease;
+  font-family: system-ui, sans-serif;
 }
 
-.container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+button {
+  cursor: pointer;
 }
 
-.dark {
-  background-color: #1a202c;
-  color: white;
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition;
 }
 
-.light {
-  background-color: white;
-  color: black;
+.btn-secondary {
+  @apply bg-gray-300 text-gray-900 px-4 py-2 rounded hover:bg-gray-400 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500;
 }
 
-.category-list {
-  margin-top: 20px;
-}
-
-.category {
-  margin-bottom: 15px;
+.btn-danger {
+  @apply bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition;
 }
 
 .category-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
 }
 
-.category-header:hover {
-  background-color: #f3f3f3;
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-.category-name {
-  margin-right: 10px;
+input,
+select {
+  @apply dark:bg-gray-800 dark:border-gray-600;
 }
 
-.category-details {
-  padding-left: 20px;
-  font-size: 0.875rem;
-}
-
-.collapse-toggle {
-  display: inline-block;
-  background-color: transparent;
-  border: none;
-  font-size: 1rem;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin-bottom: 20px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.collapse-toggle:hover {
-  background-color: #f3f3f3;
-}
-
-.dark-mode-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 50%;
-}
-
-button {
-  background-color: #4CAF50; /* Green background for primary actions */
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 9999px; /* Fully rounded corners */
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-button:hover {
-  background-color: #45a049; /* Darker green on hover */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-button.secondary {
-  background-color: #e74c3c; /* Red background for delete */
-}
-
-button.secondary:hover {
-  background-color: #c0392b;
-}
-
-button.tertiary {
-  background-color: #f1c40f; /* Yellow background */
-  color: black;
-}
-
-button.tertiary:hover {
-  background-color: #f39c12;
-}
-
-button:focus {
-  outline: none;
+/* Keep the main content from shrinking when categories collapse */
+.min-h-screen {
+  min-width: 360px;
+  padding-bottom: 5rem; /* Ensures bottom visibility */
 }

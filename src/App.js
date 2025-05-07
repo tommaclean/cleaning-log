@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { database } from './firebase';
 import {
@@ -37,7 +38,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });
-  const [collapsedCategories, setCollapsedCategories] = useState([]);
+  const [collapsedCategories, setCollapsedCategories] = useState({});
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -66,7 +67,6 @@ function App() {
     };
     set(newItemRef, itemData);
     setUndoStack([...undoStack, { type: 'add', key: newItemRef.key }]);
-
     setNewItem('');
   };
 
@@ -105,27 +105,22 @@ function App() {
     return Math.floor((Date.now() - new Date(lastCleaned)) / (1000 * 60 * 60 * 24));
   };
 
-  const handleCollapseToggle = (category) => {
-    setCollapsedCategories((prev) => {
-      if (prev.includes(category)) {
-        return prev.filter((cat) => cat !== category);
-      } else {
-        return [...prev, category];
-      }
-    });
+  const toggleCollapse = (category) => {
+    setCollapsedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  const handleCollapseAllToggle = () => {
-    if (collapsedCategories.length === categories.length) {
-      setCollapsedCategories([]);
-    } else {
-      setCollapsedCategories(categories);
-    }
+  const toggleAll = () => {
+    const areAllCollapsed = categories.every(cat => collapsedCategories[cat]);
+    const newState = {};
+    categories.forEach(cat => {
+      newState[cat] = !areAllCollapsed;
+    });
+    setCollapsedCategories(newState);
   };
 
   return (
-    <div className="min-h-screen p-4 sm:p-8 overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-500">
-      <div className="w-full max-w-3xl mx-auto">
+    <div className="min-h-screen w-full p-4 sm:p-8 overflow-x-hidden bg-white text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-500">
+      <div className="w-full max-w-3xl min-w-[320px] mx-auto">
         {/* Dark Mode Toggle */}
         <div className="flex justify-end mb-4">
           <button
@@ -144,17 +139,7 @@ function App() {
 
         <h1 className="text-2xl font-bold mb-4">Cleaning Log</h1>
 
-        {/* Collapse/Expand All Button */}
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={handleCollapseAllToggle}
-            className="bg-gray-500 text-white p-2 rounded hover:bg-gray-600"
-          >
-            {collapsedCategories.length === categories.length ? 'Expand All' : 'Collapse All'}
-          </button>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2 mb-4 items-start">
+        <div className="flex flex-col sm:flex-row gap-2 mb-2 items-start">
           <input
             type="text"
             placeholder="New item"
@@ -180,62 +165,54 @@ function App() {
               <option key={label} value={label}>{label}</option>
             ))}
           </select>
-          <button onClick={handleAddItem} className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+          <button onClick={handleAddItem} className="btn-primary">
             Add
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <button onClick={toggleAll} className="btn-secondary">
+            {categories.every(cat => collapsedCategories[cat]) ? 'Expand All' : 'Collapse All'}
           </button>
         </div>
 
         {categories.map((category) => (
           <div key={category} className="mb-6 p-4 border rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <div
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => handleCollapseToggle(category)}
+              className="category-header cursor-pointer"
+              onClick={() => toggleCollapse(category)}
             >
-              <h2 className="text-xl font-semibold mb-4">{category}</h2>
-              {collapsedCategories.includes(category) ? '⬇' : '⬆'}
+              <h2 className="text-xl font-semibold">{category}</h2>
             </div>
-            {!collapsedCategories.includes(category) && (
-              Object.entries(items)
-                .filter(([_, item]) => item.category === category)
-                .map(([key, item]) => (
-                  <div
-                    key={key}
-                    className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 mb-2 border-l-4 rounded ${getColorClass(item.lastCleaned, item.frequency)} bg-gray-50 dark:bg-gray-700`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      <div>
-                        <strong>{item.name}</strong>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">{getDaysSince(item.lastCleaned)} days ago</div>
+            {!collapsedCategories[category] && (
+              <div className="mt-4">
+                {Object.entries(items)
+                  .filter(([_, item]) => item.category === category)
+                  .map(([key, item]) => (
+                    <div
+                      key={key}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between p-3 mb-2 border-l-4 rounded ${getColorClass(item.lastCleaned, item.frequency)} bg-gray-50 dark:bg-gray-700`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div>
+                          <strong>{item.name}</strong>
+                          <div className="text-sm text-gray-600 dark:text-gray-300">{getDaysSince(item.lastCleaned)} days ago</div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 items-center">
+                        <input
+                          type="date"
+                          value={item.lastCleaned}
+                          onChange={(e) => handleDateChange(key, e.target.value)}
+                          className="border p-1 rounded dark:bg-gray-800 dark:border-gray-600"
+                        />
+                        <button onClick={() => handleToday(key)} className="btn-primary">Today</button>
+                        <button onClick={() => handleUndoChange(key)} className="btn-secondary">↩</button>
+                        <button onClick={() => handleDelete(key)} className="btn-danger">X</button>
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 items-center">
-                      <input
-                        type="date"
-                        value={item.lastCleaned}
-                        onChange={(e) => handleDateChange(key, e.target.value)}
-                        className="border p-1 rounded dark:bg-gray-800 dark:border-gray-600"
-                      />
-                      <button
-                        onClick={() => handleToday(key)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                      >
-                        Today
-                      </button>
-                      <button
-                        onClick={() => handleUndoChange(key)}
-                        className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
-                      >
-                        ↩
-                      </button>
-                      <button
-                        onClick={() => handleDelete(key)}
-                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                      >
-                        X
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  ))}
+              </div>
             )}
           </div>
         ))}
