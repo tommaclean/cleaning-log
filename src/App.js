@@ -206,9 +206,15 @@ function App() {
                           onChange={(e) => handleDateChange(key, e.target.value)}
                           className="border p-1 rounded dark:bg-gray-800 dark:border-gray-600"
                         />
-                        <button onClick={() => handleToday(key)} className="btn-primary">Today</button>
-                        <button onClick={() => handleUndoChange(key)} className="btn-secondary">↩</button>
-                        <button onClick={() => handleDelete(key)} className="btn-danger">X</button>
+                          <button onClick={() => handleToday(key)} className="px-2 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600">
+                            Today
+                          </button>
+                          <button onClick={() => handleUndoChange(key)} className="px-2 py-1 text-sm rounded bg-gray-300 text-black hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500">
+                            ↩
+                          </button>
+                          <button onClick={() => handleDelete(key)} className="px-2 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600">
+                            X
+                          </button>
                       </div>
                     </div>
                   ))}
